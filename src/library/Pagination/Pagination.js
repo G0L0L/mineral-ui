@@ -1,12 +1,12 @@
 /* @flow */
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { IconChevronRight } from 'mineral-ui-icons';
 import { IconChevronLeft } from 'mineral-ui-icons';
 import { createStyledComponent } from '../styles';
 import { createThemedComponent } from '../themes';
 import Button from '../Button';
 import EventListener from '../EventListener';
-// import Flex, { FlexItem } from '../Flex';
+import Flex, { FlexItem } from '../Flex';
 import { FormField } from '../Form';
 import TextInput from '../TextInput';
 
@@ -19,6 +19,12 @@ type Props = {
   pageSize?: number,
   /** TODO */
   pageJumper?: boolean,
+  /** TODO */
+  pageJumperCaption?: string,
+  /** TODO */
+  pageJumperLabel?: string,
+  /** TODO */
+  pageJumperPlaceholder?: string,
   /** TODO */
   visibleRange?: number,
   /** TODO */
@@ -40,9 +46,6 @@ const styles = {
     let theme = componentTheme(baseTheme);
 
     return {
-      display: 'flex',
-      justifyContent: 'flex-end',
-
       '& button': {
         '&:not(:last-child)': {
           marginRight: theme.space_inline_sm
@@ -75,6 +78,7 @@ const incrementButton = (
       disabled={disabled}
       iconStart={incrementIcon}
       minimal
+      size="medium"
       onClick={handleIncrement.bind(null, incrementForward)}
     />
   );
@@ -113,7 +117,7 @@ const pages = (currentPage, handleClick, { totalPages, visibleRange }) => {
       let pageView = null;
       if (firstPageInRange || lastPageInRange) {
         pageView = (
-          <Button element="span" key={index} minimal>
+          <Button element="span" key={index} minimal size="medium">
             ...
           </Button>
         );
@@ -127,7 +131,8 @@ const pages = (currentPage, handleClick, { totalPages, visibleRange }) => {
             minimal
             primary={primary}
             key={index}
-            onClick={handleClick.bind(null, index)}>
+            onClick={handleClick.bind(null, index)}
+            size="medium">
             {index + 1}
           </PageButton>
         );
@@ -137,28 +142,25 @@ const pages = (currentPage, handleClick, { totalPages, visibleRange }) => {
     .filter((page) => !!page);
 };
 
-const createPageJumper = (handleFormFieldKeydown) => (
-  // <FlexItem display="inline-flex">
-  <Fragment>
-    <EventListener
-      listeners={[
-        {
-          target: 'input',
-          event: 'keydown',
-          handler: handleFormFieldKeydown,
-          options: true
-        }
-      ]}
-    />
+const PageJumperFlexItem = createStyledComponent(FlexItem, ({ theme }) => ({
+  width: theme.size_large
+}));
+
+const createPageJumper = (
+  handleFormFieldKeydown,
+  { pageJumperCaption, pageJumperLabel, pageJumperPlaceholder }
+) => (
+  <PageJumperFlexItem key={2} width="4.5em">
     <FormField
-      label="Jump to page"
+      label={pageJumperLabel || Pagination.defaultProps.pageJumperLabel}
       hideLabel
       input={TextInput}
-      caption="Jump to page"
-      placeholder="Page #"
+      caption={pageJumperCaption}
+      onChange={handleFormFieldKeydown}
+      placeholder={pageJumperPlaceholder}
+      size="medium"
     />
-  </Fragment>
-  // </FlexItem>
+  </PageJumperFlexItem>
 );
 
 /**
@@ -170,6 +172,9 @@ export default class Pagination extends Component<Props, State> {
     'aria-label': 'Pagination',
     defaultPage: 0,
     pageSize: 10,
+    pageJumperCaption: 'Jump to page',
+    pageJumperLabel: 'Jump to page',
+    pageJumperPlaceholder: 'Page #',
     visibleRange: 3
   };
 
@@ -185,11 +190,8 @@ export default class Pagination extends Component<Props, State> {
       ...restProps
     };
 
-    return (
-      <Root {...rootProps}>
-        {/* <Flex> */}
-        {pageJumper ? createPageJumper(this.handleFormFieldKeydown) : null}
-        {/* <FlexItem> */}
+    const content = [
+      <FlexItem key={1}>
         {incrementButton(
           this.state.currentPage,
           'previous',
@@ -203,8 +205,17 @@ export default class Pagination extends Component<Props, State> {
           this.handleIncrement,
           totalPages
         )}
-        {/* </FlexItem> */}
-        {/* </Flex> */}
+      </FlexItem>
+    ];
+
+    pageJumper &&
+      content.unshift(
+        createPageJumper(this.handleFormFieldKeydown, this.props)
+      );
+
+    return (
+      <Root {...rootProps}>
+        <Flex justifyContent="end">{content}</Flex>
       </Root>
     );
   }
@@ -221,8 +232,11 @@ export default class Pagination extends Component<Props, State> {
 
   handleFormFieldKeydown = (event: SyntheticInputEvent<>) => {
     const value = parseInt(event.target.value);
-    if (event.key === 'Enter' && 1 < value && value < this.props.totalPages) {
-      this.setState({ currentPage: value - 1 });
-    }
+    const updateState = () => {
+      if (1 < value && value < this.props.totalPages) {
+        this.setState({ currentPage: value - 1 });
+      }
+    };
+    event.target.addEventListener('blur', updateState);
   };
 }
