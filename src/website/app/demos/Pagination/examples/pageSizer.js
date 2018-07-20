@@ -85,13 +85,13 @@ const data = [
 ];
 
 export default {
-  id: 'table',
-  title: 'Table',
+  id: 'page-sizer',
+  title: 'Page Sizer',
   description: `TODO`,
   scope: { Component, data, DemoLayout, Pagination, Table },
   source: `
     () => {
-      const pageSize = 3
+      const pageSizes = [2,3,4]
 
       class PaginatedTable extends Component {
         constructor(props) {
@@ -100,22 +100,28 @@ export default {
           this.state = {
             data: this.props.data,
             currentPage: 0,
+            pageSize: pageSizes[0]
           };
 
           this.onPageChange = this.onPageChange.bind(this);
+          this.onPageSizeChange = this.onPageSizeChange.bind(this);
         }
 
         onPageChange(currentPage) {
           this.setState({ currentPage })
         }
 
+        onPageSizeChange(pageSize) {
+          this.setState({ pageSize })
+        }
+
         render () {
-          const { currentPage, data: stateData } = this.state
+          const { currentPage, data: stateData, pageSize } = this.state
           const slicedData = stateData.slice(currentPage * pageSize, currentPage * pageSize + pageSize)
           return (
             <DemoLayout>
               <Table data={slicedData} title="Foods of the World" hideTitle rowKey="Fruits" />
-              <Pagination onPageChange={this.onPageChange} pageSize={pageSize} totalPages={Math.ceil(data.length / pageSize)} />
+              <Pagination onPageSizeChange={this.onPageSizeChange} pageSizer pageSizes={pageSizes} totalPages={Math.ceil(data.length / pageSize)} />
             </DemoLayout>
           )
         }
