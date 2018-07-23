@@ -7,9 +7,8 @@ import { createThemedComponent } from '../themes';
 import Button from '../Button';
 import Flex, { FlexItem } from '../Flex';
 import { FormField } from '../Form';
-// import TextInput from '../TextInput';
+import TextInput from '../TextInput';
 import Select from '../Select';
-import PageJumper from './PageJumper';
 
 type Props = {
   /** TODO */
@@ -160,6 +159,27 @@ const pages = (currentPage, handleClick, { totalPages, visibleRange }) => {
     .filter((page) => !!page);
 };
 
+const PageJumperFlexItem = createStyledComponent(FlexItem, ({ theme }) => ({
+  width: theme.size_large
+}));
+
+const createPageJumper = (handleFormFieldBlur, messages) => (
+  <PageJumperFlexItem key={2} width="4.5em">
+    <FormField
+      label={
+        messages.pageJumperLabel ||
+        Pagination.defaultProps.messages.pageJumperLabel
+      }
+      hideLabel
+      input={TextInput}
+      caption={messages.pageJumperLabel}
+      onChange={handleFormFieldBlur}
+      placeholder={messages.pageJumperPlaceholder}
+      size="medium"
+    />
+  </PageJumperFlexItem>
+);
+
 const createPageSizer = (
   { currentPage, pageSize }: State,
   handleSelect,
@@ -241,7 +261,6 @@ export default class Pagination extends Component<Props, State> {
   };
 
   render() {
-    const { currentPage } = this.state;
     const {
       messages,
       pageJumper,
@@ -255,25 +274,23 @@ export default class Pagination extends Component<Props, State> {
     const content = [
       <FlexItem key={1}>
         {incrementButton(
-          currentPage,
+          this.state.currentPage,
           'previous',
           this.handleIncrement,
           totalPages
         )}
-        {pages(currentPage, this.handleClick, this.props)}
-        {incrementButton(currentPage, 'next', this.handleIncrement, totalPages)}
+        {pages(this.state.currentPage, this.handleClick, this.props)}
+        {incrementButton(
+          this.state.currentPage,
+          'next',
+          this.handleIncrement,
+          totalPages
+        )}
       </FlexItem>
     ];
 
-    const pageJumperProps = {
-      key: 'Page Jumper',
-      currentPage: currentPage,
-      messages,
-      onPageChange: this.onPageChange,
-      totalPages
-    };
-
-    pageJumper && content.unshift(<PageJumper {...pageJumperProps} />);
+    pageJumper &&
+      content.unshift(createPageJumper(this.handleFormFieldBlur, messages));
     pageSizer &&
       content.unshift(
         createPageSizer(this.state, this.handleSelect, this.props)
@@ -302,6 +319,19 @@ export default class Pagination extends Component<Props, State> {
     });
   };
 
+  handleFormFieldBlur = (event: SyntheticInputEvent<>) => {
+    event.persist();
+    const updateCurrentPage = () => {
+      const value = parseInt(event.target.value);
+      const currentPage = value - 1;
+      if (1 <= value && value <= this.props.totalPages) {
+        this.setState({ currentPage });
+        this.onPageChange(currentPage);
+      }
+    };
+    event.target.addEventListener('blur', updateCurrentPage);
+  };
+
   handleSelect = (event: SyntheticInputEvent<>) => {
     const pageSize = parseInt(event.value);
     this.setState({ pageSize });
@@ -311,8 +341,6 @@ export default class Pagination extends Component<Props, State> {
   onPageChange = (currentPage: number) => {
     if (this.props.onPageChange) {
       this.props.onPageChange(currentPage);
-    } else {
-      this.setState({ currentPage });
     }
   };
 
