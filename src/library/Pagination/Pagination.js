@@ -235,7 +235,6 @@ export default class Pagination extends Component<Props, State> {
 
   handleClick = (index: number) => {
     const currentPage = index;
-    this.setState({ currentPage });
     this.onPageChange(currentPage);
   };
 
@@ -244,24 +243,24 @@ export default class Pagination extends Component<Props, State> {
       const currentPage = incrementForward
         ? prevState.currentPage + 1
         : prevState.currentPage - 1;
-      this.onPageChange(currentPage);
+      if (this.props.onPageChange) {
+        this.props.onPageChange(currentPage);
+      }
       return { currentPage };
     });
   };
 
   onPageChange = (currentPage: number) => {
+    this.setState({ currentPage });
     if (this.props.onPageChange) {
       this.props.onPageChange(currentPage);
-    } else {
-      this.setState({ currentPage });
     }
   };
 
   onPageSizeChange = (pageSize: number) => {
+    this.setState({ pageSize });
     if (this.props.onPageSizeChange) {
       this.props.onPageSizeChange(pageSize);
-    } else {
-      this.setState({ pageSize });
     }
   };
 }
