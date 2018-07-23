@@ -64,18 +64,19 @@ export default function PageJumper(props: Props) {
     width: '4.5em',
     ...restProps
   };
+  const inputProps = {
+    label: messages.pageJumperLabel,
+    hideLabel: true,
+    input: TextInput,
+    caption: messages.pageJumperLabel,
+    onChange: handleFormFieldBlur.bind(null, props),
+    placeholder: messages.pageJumperPlaceholder,
+    size: 'medium'
+  };
 
   return (
     <Root {...rootProps}>
-      <FormField
-        label={messages.pageJumperLabel}
-        hideLabel
-        input={TextInput}
-        caption={messages.pageJumperLabel}
-        onChange={handleFormFieldBlur.bind(null, props)}
-        placeholder={messages.pageJumperPlaceholder}
-        size="medium"
-      />
+      <FormField {...inputProps} />
     </Root>
   );
 }

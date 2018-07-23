@@ -125,7 +125,12 @@ export default {
           const slicedData = data.slice(firstRow, lastRow)
           const totalPages = Math.ceil(data.length / pageSize)
 
-          const messages = {pagesStatus: pagesStatus, pageSizerText: 'foods'}
+          const messages = {
+            pagesStatus,
+            perPageText: 'per page',
+            rowsText: 'foods',
+            total: data.length
+          }
 
           return (
             <DemoLayout>
@@ -138,7 +143,8 @@ export default {
                 pageSizer
                 pageSizes={pageSizes}
                 onPageSizeChange={this.onPageSizeChange}
-                messages={messages} totalPages={totalPages}
+                messages={messages}
+                totalPages={totalPages}
                 onPageChange={this.onPageChange} />
             </DemoLayout>
           )

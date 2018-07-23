@@ -6,10 +6,8 @@ import { createStyledComponent } from '../styles';
 import { createThemedComponent } from '../themes';
 import Button from '../Button';
 import Flex, { FlexItem } from '../Flex';
-import { FormField } from '../Form';
-// import TextInput from '../TextInput';
-import Select from '../Select';
 import PageJumper from './PageJumper';
+import PageSizer from './PageSizer';
 
 type Props = {
   /** TODO */
@@ -41,8 +39,10 @@ type Props = {
 export type Messages = {
   pageJumperLabel?: string,
   pageJumperPlaceholder?: string,
-  pageSizerText?: string,
-  pagesStatus?: () => string
+  pagesStatus?: () => string,
+  perPageText?: string,
+  rowsText?: string,
+  total?: number
 };
 
 type State = {
@@ -73,39 +73,6 @@ const styles = {
 
 const firstPage = (current) => current === 0;
 const lastPage = (current, total) => current === total - 1;
-
-const incrementButton = (
-  currentPage,
-  direction,
-  handleIncrement,
-  totalPages
-) => {
-  const incrementForward = direction === 'next' ? true : false;
-  const incrementIcon =
-    direction === 'next' ? <IconChevronRight /> : <IconChevronLeft />;
-  const disabled =
-    direction === 'next'
-      ? lastPage(currentPage, totalPages)
-      : firstPage(currentPage);
-  return (
-    <Button
-      aria-label={`${direction}-pointing chevron`}
-      disabled={disabled}
-      iconStart={incrementIcon}
-      minimal
-      size="medium"
-      onClick={handleIncrement.bind(null, incrementForward)}
-    />
-  );
-};
-
-const Root = createStyledComponent('nav', styles.root, {
-  includeStyleReset: true
-});
-
-const PageButton = createThemedComponent(Button, {
-  Button_paddingHorizontal: 0
-});
 
 const pages = (currentPage, handleClick, { totalPages, visibleRange }) => {
   const range = visibleRange || Pagination.defaultProps.visibleRange;
@@ -160,61 +127,38 @@ const pages = (currentPage, handleClick, { totalPages, visibleRange }) => {
     .filter((page) => !!page);
 };
 
-const createPageSizer = (
-  { currentPage, pageSize }: State,
-  handleSelect,
-  { messages, pageSizes, totalPages }
+const incrementButton = (
+  currentPage,
+  direction,
+  handleIncrement,
+  totalPages
 ) => {
-  const data = pageSizes.map((pageSize) => ({
-    text: `${pageSize}`,
-    value: `${pageSize}`
-  }));
-  const first = currentPage * pageSize + 1;
-  const last = first + pageSize - 1;
+  const incrementForward = direction === 'next' ? true : false;
+  const incrementIcon =
+    direction === 'next' ? <IconChevronRight /> : <IconChevronLeft />;
+  const disabled =
+    direction === 'next'
+      ? lastPage(currentPage, totalPages)
+      : firstPage(currentPage);
   return (
-    <FlexItem key={3}>
-      <FormField
-        data={data}
-        defaultSelectedItem={data[data.indexOf(pageSize)] || data[0]}
-        // label="choose a page"
-        label={
-          messages.pagesStatus(
-            first,
-            last,
-            totalPages,
-            messages.pageSizerText ||
-              Pagination.defaultProps.messages.pageSizerText
-          ) ||
-          Pagination.defaultProps.messages.pagesStatus(
-            first,
-            last,
-            totalPages,
-            Pagination.defaultProps.messages.pageSizerText
-          )
-        }
-        hideLabel
-        input={Select}
-        caption={
-          messages.pagesStatus(
-            first,
-            last,
-            totalPages * pageSize,
-            messages.pageSizerText ||
-              Pagination.defaultProps.messages.pageSizerText
-          ) ||
-          Pagination.defaultProps.messages.pagesStatus(
-            first,
-            last,
-            totalPages * pageSize,
-            Pagination.defaultProps.messages.pageSizerText
-          )
-        }
-        onChange={handleSelect}
-        size="medium"
-      />
-    </FlexItem>
+    <Button
+      aria-label={`${direction}-pointing chevron`}
+      disabled={disabled}
+      iconStart={incrementIcon}
+      minimal
+      size="medium"
+      onClick={handleIncrement.bind(null, incrementForward)}
+    />
   );
 };
+
+const PageButton = createThemedComponent(Button, {
+  Button_paddingHorizontal: 0
+});
+
+const Root = createStyledComponent('nav', styles.root, {
+  includeStyleReset: true
+});
 
 /**
  * TODO
@@ -224,13 +168,6 @@ export default class Pagination extends Component<Props, State> {
   static defaultProps = {
     'aria-label': 'Pagination',
     defaultPage: 0,
-    messages: {
-      pageJumperLabel: 'Jump to page',
-      pageJumperPlaceholder: 'Page #',
-      pagesStatus: (first, last, total, text) =>
-        `${first}-${last} of ${total} ${text}`,
-      pageSizerText: 'rows'
-    },
     pageSizes: [10, 20, 25],
     visibleRange: 3
   };
@@ -241,12 +178,14 @@ export default class Pagination extends Component<Props, State> {
   };
 
   render() {
-    const { currentPage } = this.state;
+    const { currentPage, pageSize } = this.state;
     const {
       messages,
       pageJumper,
       totalPages,
+      onPageSizeChange,
       pageSizer,
+      pageSizes,
       ...restProps
     } = this.props;
     const rootProps = {
@@ -273,11 +212,19 @@ export default class Pagination extends Component<Props, State> {
       totalPages
     };
 
+    const pageSizerProps = {
+      key: 'Page Sizer',
+      currentPage: currentPage,
+      messages,
+      onPageChange: this.onPageChange,
+      onPageSizeChange,
+      pageSize: pageSize || pageSizes[0],
+      pageSizes,
+      totalPages
+    };
+
     pageJumper && content.unshift(<PageJumper {...pageJumperProps} />);
-    pageSizer &&
-      content.unshift(
-        createPageSizer(this.state, this.handleSelect, this.props)
-      );
+    pageSizer && content.unshift(<PageSizer {...pageSizerProps} />);
 
     return (
       <Root {...rootProps}>
@@ -302,12 +249,6 @@ export default class Pagination extends Component<Props, State> {
     });
   };
 
-  handleSelect = (event: SyntheticInputEvent<>) => {
-    const pageSize = parseInt(event.value);
-    this.setState({ pageSize });
-    this.onPageSizeChange(pageSize);
-  };
-
   onPageChange = (currentPage: number) => {
     if (this.props.onPageChange) {
       this.props.onPageChange(currentPage);
@@ -319,6 +260,8 @@ export default class Pagination extends Component<Props, State> {
   onPageSizeChange = (pageSize: number) => {
     if (this.props.onPageSizeChange) {
       this.props.onPageSizeChange(pageSize);
+    } else {
+      this.setState({ pageSize });
     }
   };
 }
