@@ -40,11 +40,13 @@ type Props = {
 export type Messages = {
   pageJumperLabel?: string,
   pageJumperPlaceholder?: string,
-  pagesStatusBuilder?: () => string
+  pageSizerText?: string,
+  pagesStatus?: () => string
 };
 
 type State = {
-  currentPage: number
+  currentPage: number,
+  pageSize: number
 };
 
 export const componentTheme = (baseTheme: Object) => ({
@@ -179,30 +181,54 @@ const createPageJumper = (handleFormFieldBlur, messages) => (
 );
 
 const createPageSizer = (
-  currentPage,
+  { currentPage, pageSize },
   handleSelect,
-  { messages, pageSize, pageSizes, totalPages }
+  { messages, pageSizes, totalPages }
 ) => {
   const data = pageSizes.map((pageSize) => ({
     text: `${pageSize}`,
     value: `${pageSize}`
   }));
+  const first = currentPage * pageSize + 1;
+  const last = first + pageSize - 1;
   return (
     <FlexItem key={3}>
       <FormField
         data={data}
         defaultSelectedItem={data[data.indexOf(pageSize)] || data[0]}
-        label="choose a page"
-        // label={
-        //   messages.pagesStatus || Pagination.defaultProps.messages.pagesStatus
-        // }
+        // label="choose a page"
+        label={
+          messages.pagesStatus(
+            first,
+            last,
+            totalPages,
+            messages.pageSizerText ||
+              Pagination.defaultProps.messages.pageSizerText
+          ) ||
+          Pagination.defaultProps.messages.pagesStatus(
+            first,
+            last,
+            totalPages,
+            Pagination.defaultProps.messages.pageSizerText
+          )
+        }
         hideLabel
         input={Select}
-        // caption={messages.pagesStatus(
-        //   currentPage,
-        //   totalPages,
-        //   messages.pagesText || Pagination.defaultProps.messages.pagesText
-        // )}
+        caption={
+          messages.pagesStatus(
+            first,
+            last,
+            totalPages * pageSize,
+            messages.pageSizerText ||
+              Pagination.defaultProps.messages.pageSizerText
+          ) ||
+          Pagination.defaultProps.messages.pagesStatus(
+            first,
+            last,
+            totalPages * pageSize,
+            Pagination.defaultProps.messages.pageSizerText
+          )
+        }
         onChange={handleSelect}
         size="medium"
       />
@@ -218,23 +244,20 @@ export default class Pagination extends Component<Props, State> {
   static defaultProps = {
     'aria-label': 'Pagination',
     defaultPage: 0,
-    pageSize: 10,
     messages: {
       pageJumperLabel: 'Jump to page',
       pageJumperPlaceholder: 'Page #',
-      pagesStatus: ({ currentPage, totalPages, pagesText }) =>
-        `${currentPage} of ${totalPages} ${pagesText}`,
-      pagesText: 'pages'
+      pagesStatus: (first, last, total, text) =>
+        `${first}-${last} of ${total} ${text}`,
+      pageSizerText: 'rows'
     },
     pageSizes: [10, 20, 25],
     visibleRange: 3
   };
 
   state = {
-    currentPage:
-      (this.props.defaultPage && this.props.defaultPage - 1) ||
-      Pagination.defaultProps.defaultPage,
-    pageSize: this.props.pageSize || Pagination.defaultProps.pageSize
+    currentPage: this.props.defaultPage && this.props.defaultPage - 1,
+    pageSize: this.props.pageSize || this.props.pageSizes[0]
   };
 
   render() {
@@ -248,7 +271,6 @@ export default class Pagination extends Component<Props, State> {
     const rootProps = {
       ...restProps
     };
-
     const content = [
       <FlexItem key={1}>
         {incrementButton(
@@ -271,7 +293,7 @@ export default class Pagination extends Component<Props, State> {
       content.unshift(createPageJumper(this.handleFormFieldBlur, messages));
     pageSizer &&
       content.unshift(
-        createPageSizer(this.state.currentPage, this.handleSelect, this.props)
+        createPageSizer(this.state, this.handleSelect, this.props)
       );
 
     return (

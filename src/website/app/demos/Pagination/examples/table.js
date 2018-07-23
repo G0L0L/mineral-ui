@@ -110,12 +110,23 @@ export default {
         }
 
         render () {
-          const { currentPage, data: stateData } = this.state
-          const slicedData = stateData.slice(currentPage * pageSize, currentPage * pageSize + pageSize)
+          const { currentPage, data } = this.state
+          const firstRow = currentPage * pageSize
+          const lastRow = currentPage * pageSize + pageSize
+          const slicedData = data.slice(firstRow, lastRow)
+          const totalPages = Math.ceil(data.length / pageSize)
+
           return (
             <DemoLayout>
-              <Table data={slicedData} title="Foods of the World" hideTitle rowKey="Fruits" />
-              <Pagination onPageChange={this.onPageChange} pageSize={pageSize} totalPages={Math.ceil(data.length / pageSize)} />
+              <Table 
+                data={slicedData}
+                title="Foods of the World"
+                hideTitle
+                rowKey="Fruits" />
+              <Pagination
+                onPageChange={this.onPageChange}
+                pageSize={pageSize}
+                totalPages={totalPages} />
             </DemoLayout>
           )
         }

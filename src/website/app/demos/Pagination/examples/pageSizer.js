@@ -84,11 +84,14 @@ const data = [
   }
 ];
 
+const pagesStatus = (firstRow, lastRow, totalRows, rowsText) =>
+  `${firstRow} - ${lastRow} of ${totalRows} ${rowsText}`;
+
 export default {
   id: 'page-sizer',
   title: 'Page Sizer',
   description: `TODO`,
-  scope: { Component, data, DemoLayout, Pagination, Table },
+  scope: { Component, data, DemoLayout, Pagination, pagesStatus, Table },
   source: `
     () => {
       const pageSizes = [2,3,4]
@@ -116,12 +119,27 @@ export default {
         }
 
         render () {
-          const { currentPage, data: stateData, pageSize } = this.state
-          const slicedData = stateData.slice(currentPage * pageSize, currentPage * pageSize + pageSize)
+          const { currentPage, data, pageSize } = this.state
+          const firstRow = currentPage * pageSize
+          const lastRow = currentPage * pageSize + pageSize
+          const slicedData = data.slice(firstRow, lastRow)
+          const totalPages = Math.ceil(data.length / pageSize)
+
+          const messages = {pagesStatus: pagesStatus, pageSizerText: 'foods'}
+
           return (
             <DemoLayout>
-              <Table data={slicedData} title="Foods of the World" hideTitle rowKey="Fruits" />
-              <Pagination onPageSizeChange={this.onPageSizeChange} pageSizer pageSizes={pageSizes} totalPages={Math.ceil(data.length / pageSize)} />
+              <Table
+                data={slicedData}
+                title="Foods of the World"
+                hideTitle
+                rowKey="Fruits" />
+              <Pagination
+                pageSizer
+                pageSizes={pageSizes}
+                onPageSizeChange={this.onPageSizeChange}
+                messages={messages} totalPages={totalPages}
+                onPageChange={this.onPageChange} />
             </DemoLayout>
           )
         }
