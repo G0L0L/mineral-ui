@@ -31,7 +31,7 @@ const styles = ({ theme: baseTheme }) => {
   let theme = componentTheme(baseTheme);
 
   return {
-    width: theme.size_large
+    width: '4.5em'
   };
 };
 
@@ -41,13 +41,17 @@ const handleFormFieldBlur = (
 ) => {
   event.persist();
   const updateCurrentPage = () => {
-    const value = parseInt(event.target.value);
-    const currentPage = value - 1;
-    if (1 <= value && value <= totalPages) {
+    const currentPage = parseInt(event.target.value) - 1;
+    if (0 <= currentPage && currentPage <= totalPages - 1) {
       onPageChange(currentPage);
     }
   };
   event.target.addEventListener('blur', updateCurrentPage);
+  event.target.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      updateCurrentPage();
+    }
+  });
 };
 
 const Root = createStyledComponent(FlexItem, styles, {
@@ -61,7 +65,6 @@ const Root = createStyledComponent(FlexItem, styles, {
 export default function PageJumper(props: Props) {
   const { messages, ...restProps } = props;
   const rootProps = {
-    width: '4.5em',
     ...restProps
   };
   const inputProps = {
