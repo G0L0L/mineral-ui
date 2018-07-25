@@ -6,82 +6,111 @@ import DemoLayout from '../../shared/DemoLayout';
 
 const data = [
   {
-    Fruits: 'Pomello',
-    Vegetables: 'Bok Choi',
-    Grains: 'Chia',
-    Dairy: 'Pule',
-    Protein: 'Crickets'
+    Name: 'Malachite',
+    Color: 'various greens',
+    Luster: 'adamantine to vitreous',
+    CrystalSystem: 'monoclinic',
+    CrystalHabit: 'botryoidal, stalactitic, acicular to tabular prismatic'
   },
   {
-    Fruits: 'Starfruit',
-    Vegetables: 'Romanesco',
-    Grains: 'Sorghum',
-    Dairy: 'Casu marzu',
-    Protein: 'Barnacles'
+    Name: 'Fluorite',
+    Color: 'colorless',
+    Luster: 'vitreous',
+    CrystalSystem: 'isometric',
+    CrystalHabit: 'coarse, nodular, botryoidal, granular'
   },
   {
-    Fruits: 'Durian',
-    Vegetables: 'Ramps',
-    Grains: 'Teff',
-    Dairy: 'Vieux Lille',
-    Protein: 'Inca nuts'
+    Name: 'Magnetite',
+    Color: 'black',
+    Luster: 'metallic',
+    CrystalSystem: 'isometric',
+    CrystalHabit: 'octahedral'
   },
   {
-    Fruits: 'Persimmons',
-    Vegetables: 'Fiddleheads',
-    Grains: 'Quinoa',
-    Dairy: 'Milbenkase',
-    Protein: 'Spirulina'
+    Name: 'Quartz',
+    Color: 'colorless',
+    Luster: 'vitreous',
+    CrystalSystem: 'trigonal or hexagonal',
+    CrystalHabit: '6-sided prism ending in 6-sided pyramid, drusy'
   },
   {
-    Fruits: 'A',
-    Vegetables: 'Fiddleheads',
-    Grains: 'Quinoa',
-    Dairy: 'Milbenkase',
-    Protein: 'Spirulina'
+    Name: 'Azurite',
+    Color: 'azure-blue',
+    Luster: 'vitreous',
+    CrystalSystem: 'monoclinic',
+    CrystalHabit: 'prismatic, stalactitic'
   },
   {
-    Fruits: 'B',
-    Vegetables: 'Fiddleheads',
-    Grains: 'Quinoa',
-    Dairy: 'Milbenkase',
-    Protein: 'Spirulina'
+    Name: 'Hematite',
+    Color: 'metallic gray',
+    Luster: 'metallic to splendent',
+    CrystalSystem: 'trigonal',
+    CrystalHabit: 'micaceous or platy, rosettes, oolitic'
   },
   {
-    Fruits: 'C',
-    Vegetables: 'Fiddleheads',
-    Grains: 'Quinoa',
-    Dairy: 'Milbenkase',
-    Protein: 'Spirulina'
+    Name: 'Pyrite',
+    Color: 'pale brass-yellow reflective',
+    Luster: 'metallic, glistening',
+    CrystalSystem: 'isometric',
+    CrystalHabit: 'cubic, inter-grown, radiated, stalactitic'
   },
   {
-    Fruits: 'D',
-    Vegetables: 'Fiddleheads',
-    Grains: 'Quinoa',
-    Dairy: 'Milbenkase',
-    Protein: 'Spirulina'
+    Name: 'Zoisite',
+    Color: 'white, various',
+    Luster: 'vitreous, pearly on cleavage surfaces',
+    CrystalSystem: 'orthorhombic',
+    CrystalHabit: 'prismatic with striations'
   },
   {
-    Fruits: 'E',
-    Vegetables: 'Fiddleheads',
-    Grains: 'Quinoa',
-    Dairy: 'Milbenkase',
-    Protein: 'Spirulina'
+    Name: 'Selenite',
+    Color: 'brown green, various',
+    Luster: 'pearly',
+    CrystalSystem: 'monoclinic',
+    CrystalHabit: 'earthy, no visible crystalline affinities'
   },
   {
-    Fruits: 'F',
-    Vegetables: 'Fiddleheads',
-    Grains: 'Quinoa',
-    Dairy: 'Milbenkase',
-    Protein: 'Spirulina'
+    Name: 'Howlite',
+    Color: 'white, colorless',
+    Luster: 'subvitreous, glimmering',
+    CrystalSystem: 'monoclinic',
+    CrystalHabit: 'massive to nodular'
   },
   {
-    Fruits: 'G',
-    Vegetables: 'Fiddleheads',
-    Grains: 'Quinoa',
-    Dairy: 'Milbenkase',
-    Protein: 'Spirulina'
+    Name: 'Tourmaline',
+    Color: 'black, various',
+    Luster: 'vitreous, sometimes resinous',
+    CrystalSystem: 'trigonal',
+    CrystalHabit: 'parallel and elongated; acicular prisms'
+  },
+  {
+    Name: 'Celestite',
+    Color: 'colorless, various',
+    Luster: 'vitreous, pearly on cleavages',
+    CrystalSystem: 'orthorhombic',
+    CrystalHabit: 'tabular to pyramidal, fibrous, lamellar, earthy'
+  },
+  {
+    Name: 'Vanadinite',
+    Color: 'bright red, various',
+    Luster: 'resinous to sub-adamantine',
+    CrystalSystem: 'hexagonal',
+    CrystalHabit: 'prismatic or nodular; acicular, hairlike, fibrous'
+  },
+  {
+    Name: 'Argonite',
+    Color: 'white, various',
+    Luster: 'vitreous, resinous on fracture surfaces',
+    CrystalSystem: 'orthorhombic',
+    CrystalHabit: 'pseudohexagonal, prismatic, acicular, columnar'
   }
+];
+
+const columns = [
+  { content: 'Mineral', key: 'Name' },
+  { content: 'Color', key: 'Color' },
+  { content: 'Luster', key: 'Luster' },
+  { content: 'Crystal System', key: 'CrystalSystem' },
+  { content: 'Crystal Habit', key: 'CrystalHabit' }
 ];
 
 const pagesStatus = (firstRow, lastRow, totalRows, rowsText) =>
@@ -91,7 +120,15 @@ export default {
   id: 'page-sizer',
   title: 'Page Sizer',
   description: `TODO`,
-  scope: { Component, data, DemoLayout, Pagination, pagesStatus, Table },
+  scope: {
+    Component,
+    columns,
+    data,
+    DemoLayout,
+    Pagination,
+    pagesStatus,
+    Table
+  },
   source: `
     () => {
       const pageSizes = [2,3,4]
@@ -135,6 +172,7 @@ export default {
           return (
             <DemoLayout>
               <Table
+                columns={columns}
                 data={slicedData}
                 title="Foods of the World"
                 hideTitle
