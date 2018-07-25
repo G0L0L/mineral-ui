@@ -194,14 +194,22 @@ export default class Pagination extends Component<Props, State> {
     )
   };
 
+  pageJumperInput: HTMLInputElement;
+
+  // componentWillReceiveProps(nextProps) {
+  //   if () {
+  //     this.setState()
+  //   }
+  // }
+
   render() {
+    console.log({ props: this.props, state: this.state });
     const { currentPage, pageSize, totalPages } = this.state;
     const {
       contentText,
       messages,
       pageJumper,
       totalLength,
-      onPageSizeChange,
       pageSizer,
       pageSizes,
       ...restProps
@@ -226,6 +234,7 @@ export default class Pagination extends Component<Props, State> {
     const pageJumperProps = {
       key: 'Page Jumper',
       currentPage: currentPage,
+      inputRef: (node) => (this.pageJumperInput = node),
       messages: messages,
       onPageChange: this.onPageChange,
       totalPages
@@ -256,19 +265,21 @@ export default class Pagination extends Component<Props, State> {
   };
 
   handleIncrement = (incrementForward: boolean) => {
-    this.setState((prevState) => {
-      const currentPage = incrementForward
-        ? prevState.currentPage + 1
-        : prevState.currentPage - 1;
-      if (this.props.onPageChange) {
-        this.props.onPageChange(currentPage);
-      }
-      return { currentPage };
-    });
+    const currentPage = incrementForward
+      ? this.state.currentPage + 1
+      : this.state.currentPage - 1;
+    this.onPageChange(currentPage);
   };
 
   onPageChange = (currentPage: number) => {
-    this.setState({ currentPage });
+    this.setState({ currentPage }, () => {
+      if (
+        this.props.pageJumper &&
+        parseInt(this.pageJumperInput.value) !== this.state.currentPage + 1
+      ) {
+        this.pageJumperInput.value = '';
+      }
+    });
     if (this.props.onPageChange) {
       this.props.onPageChange(currentPage);
     }

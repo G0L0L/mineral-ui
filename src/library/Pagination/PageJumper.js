@@ -11,6 +11,8 @@ type Props = {
   'aria-label'?: string,
   /** TODO */
   currentPage: number,
+  /** ref for the input */
+  inputRef?: (node: ?React$Component<*, *>) => void,
   /** Various messages and labels used by Table
    * ([see example for more details](#rtl))
    */
@@ -63,7 +65,7 @@ const Root = createStyledComponent(FlexItem, styles, {
  * TODO
  */
 export default function PageJumper(props: Props) {
-  const { messages, ...restProps } = props;
+  const { messages, inputRef, ...restProps } = props;
   const rootProps = {
     ...restProps
   };
@@ -73,6 +75,7 @@ export default function PageJumper(props: Props) {
     hideLabel: true,
     input: TextInput,
     caption: label,
+    inputRef,
     onChange: handleFormFieldBlur.bind(null, props),
     placeholder,
     size: 'medium'

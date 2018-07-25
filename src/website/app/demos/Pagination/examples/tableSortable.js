@@ -113,12 +113,32 @@ const columns = [
   { content: 'Crystal Habit', key: 'CrystalHabit' }
 ];
 
+const normalizedValue = (value) =>
+  value === null || value === undefined
+    ? ''
+    : typeof value === 'string' ? value.toUpperCase() : value;
+
+const sortComparator = (a, b, key) => {
+  const valueA = normalizedValue(a[key]);
+  const valueB = normalizedValue(b[key]);
+
+  return valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
+};
+
 export default {
   id: 'table-sortable',
   title: 'Sortable Table',
   description: `TODO`,
   hideFromProd: true,
-  scope: { Component, columns, data, DemoLayout, Pagination, Table },
+  scope: {
+    Component,
+    columns,
+    data,
+    DemoLayout,
+    Pagination,
+    Table,
+    sortComparator
+  },
   source: `
     () => {
       const pageSize = 3
@@ -130,6 +150,7 @@ export default {
           this.state = {
             data: this.props.data,
             currentPage: 0,
+            sort: undefined
           };
 
           this.handleSort = this.handleSort.bind(this);
@@ -137,7 +158,11 @@ export default {
         }
 
         handleSort(sort) {
-          this.setState({ data: data });
+          const sortedData = data.sort((a,b) => sortComparator(a,b,sort.key))
+          this.setState(
+            { data: sortedData, sort },
+            () => { this.onPageChange(0) }
+          );
         }
 
         onPageChange(currentPage) {
@@ -155,6 +180,7 @@ export default {
             <DemoLayout>
               <Table
                 sortable
+                sort={this.state.sort}
                 onSort={this.handleSort}
                 data={slicedData}
                 columns={columns}
@@ -162,6 +188,7 @@ export default {
                 hideTitle
                 rowKey="Name" />
               <Pagination
+                defaultPage={this.state.currentPage}
                 onPageChange={this.onPageChange}
                 pageSize={pageSize}
                 totalLength={data.length} />
