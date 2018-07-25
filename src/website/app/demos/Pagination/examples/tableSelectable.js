@@ -114,9 +114,10 @@ const columns = [
 ];
 
 export default {
-  id: 'table',
-  title: 'Table',
+  id: 'table-selectable',
+  title: 'Selectable Table',
   description: `TODO`,
+  hideFromProd: true,
   scope: { Component, columns, data, DemoLayout, Pagination, Table },
   source: `
     () => {
@@ -148,6 +149,7 @@ export default {
           return (
             <DemoLayout>
               <Table
+                selectable
                 data={slicedData}
                 columns={columns}
                 title="Minerals"

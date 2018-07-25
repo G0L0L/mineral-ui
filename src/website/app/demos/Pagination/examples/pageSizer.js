@@ -113,9 +113,6 @@ const columns = [
   { content: 'Crystal Habit', key: 'CrystalHabit' }
 ];
 
-const pagesStatus = (firstRow, lastRow, totalRows, rowsText) =>
-  `${firstRow} - ${lastRow} of ${totalRows} ${rowsText}`;
-
 export default {
   id: 'page-sizer',
   title: 'Page Sizer',
@@ -126,7 +123,6 @@ export default {
     data,
     DemoLayout,
     Pagination,
-    pagesStatus,
     Table
   },
   source: `
@@ -138,7 +134,6 @@ export default {
           super(props);
 
           this.state = {
-            data: this.props.data,
             currentPage: 0,
             pageSize: pageSizes[0]
           };
@@ -156,18 +151,11 @@ export default {
         }
 
         render () {
-          const { currentPage, data, pageSize } = this.state
+          const { currentPage, pageSize } = this.state
           const firstRow = currentPage * pageSize
           const lastRow = currentPage * pageSize + pageSize
-          const slicedData = data.slice(firstRow, lastRow)
-          const totalPages = Math.ceil(data.length / pageSize)
-
-          const messages = {
-            pagesStatus,
-            perPageText: 'per page',
-            rowsText: 'foods',
-            total: data.length
-          }
+          const slicedData = this.props.data.slice(firstRow, lastRow)
+          const contentText = 'minerals'
 
           return (
             <DemoLayout>
@@ -181,8 +169,8 @@ export default {
                 pageSizer
                 pageSizes={pageSizes}
                 onPageSizeChange={this.onPageSizeChange}
-                messages={messages}
-                totalPages={totalPages}
+                contentText={contentText}
+                totalLength={data.length}
                 onPageChange={this.onPageChange} />
             </DemoLayout>
           )

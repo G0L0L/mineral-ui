@@ -6,6 +6,6 @@ export default [
   {
     type: 'do',
     description: `TODO`,
-    example: <Pagination totalPages={4} />
+    example: <Pagination totalLength={40} />
   }
 ];

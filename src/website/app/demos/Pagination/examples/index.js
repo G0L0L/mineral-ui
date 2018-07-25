@@ -5,6 +5,8 @@ import importSyntax from './importSyntax';
 import pageJumper from './pageJumper';
 import pageSizer from './pageSizer';
 import table from './table';
+import tableSelectable from './tableSelectable';
+import tableSortable from './tableSortable';
 import visibleRange from './visibleRange';
 
 export default [
@@ -14,5 +16,7 @@ export default [
   defaultPage,
   pageJumper,
   table,
-  pageSizer
+  pageSizer,
+  tableSelectable,
+  tableSortable
 ];

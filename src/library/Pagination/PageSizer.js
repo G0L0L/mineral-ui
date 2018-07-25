@@ -22,6 +22,8 @@ type Props = {
   /** TODO */
   pageSizes: Array<number>,
   /** TODO */
+  totalLength: number,
+  /** TODO */
   totalPages: number
 };
 
@@ -35,7 +37,7 @@ const styles = ({ theme: baseTheme }) => {
   let theme = componentTheme(baseTheme);
 
   return {
-    // width: theme.size_large
+    // marginRight: 'auto'
   };
 };
 
@@ -47,26 +49,14 @@ const Root = createStyledComponent(FlexItem, styles, {
  * TODO
  */
 export default class PageSizer extends Component<State, Props> {
-  static defaultProps = {
-    'aria-label': 'Page Sizer',
-    messages: {
-      pagesStatus: (first, last, total, text) =>
-        `${first}-${last} of ${total} ${text}`,
-      perPageText: 'per page',
-      rowsText: 'rows'
-    }
-  };
-
-  state = {
-    pageSize: this.props.pageSize
-  };
-
   render() {
-    const { pageSize } = this.state;
     const {
+      contentText,
       currentPage,
       messages,
+      pageSize,
       pageSizes,
+      totalLength,
       totalPages,
       ...restProps
     } = this.props;
@@ -74,19 +64,21 @@ export default class PageSizer extends Component<State, Props> {
       ...restProps
     };
 
+    const { status, itemText } = messages.pageSizer;
+
     const data = pageSizes.map((pageSize) => ({
-      text: `${pageSize} ${messages.perPageText}`,
+      text: itemText(pageSize),
       value: `${pageSize}`
     }));
 
     const first = currentPage * pageSize + 1;
     const last = first + pageSize - 1;
     const lastPage = currentPage + 1 === totalPages;
-    const pageSizerDescription = messages.pagesStatus(
+    const pageSizerDescription = status(
       first,
-      lastPage ? messages.total : last,
-      messages.total,
-      messages.rowsText
+      lastPage ? totalLength : last,
+      totalLength,
+      contentText
     );
 
     const inputProps = {
@@ -109,7 +101,6 @@ export default class PageSizer extends Component<State, Props> {
 
   handleSelect = (event: SyntheticInputEvent<>) => {
     const pageSize = parseInt(event.value);
-    this.setState({ pageSize });
     this.props.onPageSizeChange(pageSize);
   };
 }

@@ -6,11 +6,11 @@ import { createStyledComponent } from '../styles';
 import Button from '../Button';
 import Flex, { FlexItem } from '../Flex';
 import PageJumper from './PageJumper';
-import PageSizer from './PageSizer';
+import _PageSizer from './PageSizer';
 
 type Props = {
   /** TODO */
-  'aria-label'?: string,
+  contentText?: string,
   /** TODO */
   defaultPage?: number,
   /** Various messages and labels used by Table
@@ -32,16 +32,21 @@ type Props = {
   /** TODO */
   visibleRange?: number,
   /** TODO */
-  totalPages: number
+  totalLength: number
 };
 
 export type Messages = {
-  pageJumperLabel?: string,
-  pageJumperPlaceholder?: string,
-  pagesStatus?: () => string,
-  perPageText?: string,
-  rowsText?: string,
-  total?: number
+  pagination: { label: string },
+  pageJumper?: { label: string, placeholder: string },
+  pageSizer?: {
+    status: (
+      first: number,
+      last: number,
+      total: number,
+      label: string
+    ) => string,
+    itemText: (pageSize: number) => string
+  }
 };
 
 type State = {
@@ -70,7 +75,7 @@ const styles = ({ theme: baseTheme }) => {
 const firstPage = (current) => current === 0;
 const lastPage = (current, total) => current === total - 1;
 
-const pages = (currentPage, handleClick, { totalPages, visibleRange }) => {
+const pages = (currentPage, handleClick, totalPages, { visibleRange }) => {
   const range = visibleRange || Pagination.defaultProps.visibleRange;
   return Array.apply(null, Array(totalPages))
     .map(Number.prototype.valueOf, 0)
@@ -144,8 +149,16 @@ const incrementButton = (
   );
 };
 
-const Root = createStyledComponent('nav', styles, {
-  includeStyleReset: true
+const getTotalPages = (pageSize, totalLength) =>
+  Math.ceil(totalLength / pageSize);
+
+const Root = createStyledComponent(Flex, styles, {
+  includeStyleReset: true,
+  withProps: { element: 'nav', justifyContent: 'end' }
+});
+
+const PageSizer = createStyledComponent(_PageSizer, {
+  marginRight: 'auto'
 });
 
 /**
@@ -154,29 +167,47 @@ const Root = createStyledComponent('nav', styles, {
 export default class Pagination extends Component<Props, State> {
   static displayName = 'Pagination';
   static defaultProps = {
-    'aria-label': 'Pagination',
+    contentText: 'rows',
     defaultPage: 0,
     pageSizes: [10, 20, 25],
-    visibleRange: 3
+    visibleRange: 3,
+    messages: {
+      pagination: { label: 'Pagination' },
+      pageJumper: {
+        label: 'Jump to page',
+        placeholder: 'Page #'
+      },
+      pageSizer: {
+        status: (first, last, total, label) =>
+          `${first}-${last} of ${total} ${label}`,
+        itemText: (pageSize) => `${pageSize} per page`
+      }
+    }
   };
 
   state = {
     currentPage: this.props.defaultPage && this.props.defaultPage - 1,
-    pageSize: this.props.pageSize || this.props.pageSizes[0]
+    pageSize: this.props.pageSize || this.props.pageSizes[0],
+    totalPages: getTotalPages(
+      this.props.pageSize || this.props.pageSizes[0],
+      this.props.totalLength
+    )
   };
 
   render() {
-    const { currentPage, pageSize } = this.state;
+    const { currentPage, pageSize, totalPages } = this.state;
     const {
+      contentText,
       messages,
       pageJumper,
-      totalPages,
+      totalLength,
       onPageSizeChange,
       pageSizer,
       pageSizes,
       ...restProps
     } = this.props;
     const rootProps = {
+      'aria-label': messages.pagination.label,
       ...restProps
     };
     const content = [
@@ -187,7 +218,7 @@ export default class Pagination extends Component<Props, State> {
           this.handleIncrement,
           totalPages
         )}
-        {pages(currentPage, this.handleClick, this.props)}
+        {pages(currentPage, this.handleClick, totalPages, this.props)}
         {incrementButton(currentPage, 'next', this.handleIncrement, totalPages)}
       </FlexItem>
     ];
@@ -195,7 +226,7 @@ export default class Pagination extends Component<Props, State> {
     const pageJumperProps = {
       key: 'Page Jumper',
       currentPage: currentPage,
-      messages,
+      messages: messages,
       onPageChange: this.onPageChange,
       totalPages
     };
@@ -203,22 +234,20 @@ export default class Pagination extends Component<Props, State> {
     const pageSizerProps = {
       key: 'Page Sizer',
       currentPage: currentPage,
+      contentText,
       messages,
       onPageChange: this.onPageChange,
-      onPageSizeChange,
-      pageSize: pageSize || pageSizes[0],
+      onPageSizeChange: this.onPageSizeChange,
+      pageSize,
       pageSizes,
+      totalLength,
       totalPages
     };
 
     pageJumper && content.unshift(<PageJumper {...pageJumperProps} />);
     pageSizer && content.unshift(<PageSizer {...pageSizerProps} />);
 
-    return (
-      <Root {...rootProps}>
-        <Flex justifyContent="end">{content}</Flex>
-      </Root>
-    );
+    return <Root {...rootProps}>{content}</Root>;
   }
 
   handleClick = (index: number) => {
@@ -246,7 +275,8 @@ export default class Pagination extends Component<Props, State> {
   };
 
   onPageSizeChange = (pageSize: number) => {
-    this.setState({ pageSize });
+    const totalPages = getTotalPages(pageSize, this.props.totalLength);
+    this.setState({ pageSize, totalPages });
     if (this.props.onPageSizeChange) {
       this.props.onPageSizeChange(pageSize);
     }

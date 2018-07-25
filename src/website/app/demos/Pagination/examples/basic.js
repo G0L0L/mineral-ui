@@ -7,6 +7,6 @@ export default {
   description: `TODO`,
   scope: { Pagination },
   source: `
-    <Pagination totalPages={10} />
+    <Pagination totalLength={100} />
   `
 };

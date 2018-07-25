@@ -67,13 +67,14 @@ export default function PageJumper(props: Props) {
   const rootProps = {
     ...restProps
   };
+  const { label, placeholder } = messages.pageJumper;
   const inputProps = {
-    label: messages.pageJumperLabel,
+    label,
     hideLabel: true,
     input: TextInput,
-    caption: messages.pageJumperLabel,
+    caption: label,
     onChange: handleFormFieldBlur.bind(null, props),
-    placeholder: messages.pageJumperPlaceholder,
+    placeholder,
     size: 'medium'
   };
 
@@ -83,11 +84,3 @@ export default function PageJumper(props: Props) {
     </Root>
   );
 }
-
-PageJumper.defaultProps = {
-  'aria-label': 'Page Jumper',
-  messages: {
-    pageJumperLabel: 'Jump to page',
-    pageJumperPlaceholder: 'Page #'
-  }
-};

@@ -114,9 +114,10 @@ const columns = [
 ];
 
 export default {
-  id: 'table',
-  title: 'Table',
+  id: 'table-sortable',
+  title: 'Sortable Table',
   description: `TODO`,
+  hideFromProd: true,
   scope: { Component, columns, data, DemoLayout, Pagination, Table },
   source: `
     () => {
@@ -131,7 +132,12 @@ export default {
             currentPage: 0,
           };
 
+          this.handleSort = this.handleSort.bind(this);
           this.onPageChange = this.onPageChange.bind(this);
+        }
+
+        handleSort(sort) {
+          this.setState({ data: data });
         }
 
         onPageChange(currentPage) {
@@ -148,6 +154,8 @@ export default {
           return (
             <DemoLayout>
               <Table
+                sortable
+                onSort={this.handleSort}
                 data={slicedData}
                 columns={columns}
                 title="Minerals"
