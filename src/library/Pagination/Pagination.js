@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { IconChevronRight } from 'mineral-ui-icons';
 import { IconChevronLeft } from 'mineral-ui-icons';
 import { createStyledComponent } from '../styles';
-import { createThemedComponent } from '../themes';
 import Button from '../Button';
 import Flex, { FlexItem } from '../Flex';
 import PageJumper from './PageJumper';
@@ -56,19 +55,16 @@ export const componentTheme = (baseTheme: Object) => ({
   ...baseTheme
 });
 
-const styles = {
-  root: ({ theme: baseTheme }) => {
-    let theme = componentTheme(baseTheme);
+const styles = ({ theme: baseTheme }) => {
+  let theme = componentTheme(baseTheme);
 
-    return {
-      '& button': {
-        '&:not(:last-child)': {
-          marginRight: theme.space_inline_sm
-        }
+  return {
+    '& button': {
+      '&:not(:last-child)': {
+        marginRight: theme.space_inline_sm
       }
-    };
-  },
-  icon: {}
+    }
+  };
 };
 
 const firstPage = (current) => current === 0;
@@ -79,10 +75,6 @@ const pages = (currentPage, handleClick, { totalPages, visibleRange }) => {
   return Array.apply(null, Array(totalPages))
     .map(Number.prototype.valueOf, 0)
     .map((_, index) => {
-      let primary = false;
-      if (currentPage === index) {
-        primary = true;
-      }
       let pagesBuffer;
       if (currentPage < range) {
         pagesBuffer = range - currentPage + 2;
@@ -112,14 +104,14 @@ const pages = (currentPage, handleClick, { totalPages, visibleRange }) => {
         lastPage(index, totalPages)
       ) {
         pageView = (
-          <PageButton
+          <Button
             minimal
-            primary={primary}
+            primary={currentPage === index}
             key={index}
             onClick={handleClick.bind(null, index)}
             size="medium">
             {index + 1}
-          </PageButton>
+          </Button>
         );
       }
       return pageView;
@@ -152,11 +144,7 @@ const incrementButton = (
   );
 };
 
-const PageButton = createThemedComponent(Button, {
-  Button_paddingHorizontal: 0
-});
-
-const Root = createStyledComponent('nav', styles.root, {
+const Root = createStyledComponent('nav', styles, {
   includeStyleReset: true
 });
 
