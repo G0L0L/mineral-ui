@@ -91,6 +91,7 @@
     "cz-conventional-changelog": "2.1.0",
     "dedent": "0.7.0",
     "emotion": "9.2.1",
+    "emotion-server": "9.2.6",
     "emotion-theming": "9.2.1",
     "enzyme": "3.3.0",
     "enzyme-react-adapter-future": "1.1.3",
